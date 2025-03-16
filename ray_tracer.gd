@@ -9,8 +9,8 @@ var shader: RID
 var pipeline: RID
 var uniform_set: RID
 
-var width: int = 512
-var height: int = 512
+var width: int = 800
+var height: int = 600
 
 @onready var camera = $Camera3D
 @onready var sphere = $MeshInstance3D
@@ -20,7 +20,7 @@ var height: int = 512
 func _ready() -> void:
 	rd = RenderingServer.create_local_rendering_device()
 	
-	image = Image.create_empty(512,512, false,Image.FORMAT_RGBA8)
+	image = Image.create_empty(width, height, false,Image.FORMAT_RGBA8)
 	image.fill(Color(0,0,0,1))
 	
 	texture_rid = create_compute_texture()
@@ -34,8 +34,8 @@ func _ready() -> void:
 
 func create_compute_texture() -> RID:
 	var tex_format = RDTextureFormat.new()
-	tex_format.width = 512
-	tex_format.height = 512
+	tex_format.width = width
+	tex_format.height = height
 	tex_format.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
 	tex_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
 	
@@ -64,24 +64,30 @@ func create_compute_storage() -> RID:
 	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
 	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().length()))
 	
-	'''
-	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))  # Camera at origin
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(Vector3(1.0, 0.0, 0.0)))   # Basis X
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 1.0, 0.0)))   # Basis Y
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 1.0)))   # Basis Z
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_float_to_bytes(90.0))                       # FOV
-	buffer.append_array(_float_to_bytes(1.0))                        # Aspect
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, -3.0)))  # Sphere center
-	buffer.append_array(_float_to_bytes(1.0))                        # Sphere radius
-	'''
 	return rd.storage_buffer_create(buffer.size(), buffer)
+
+func update_compute_storage():
+	var buffer := PackedByteArray()
 	
+	buffer.append_array(_vector3_to_bytes(camera.global_transform.origin))
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_vector3_to_bytes(camera.basis.x))
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_vector3_to_bytes(camera.basis.y))
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_vector3_to_bytes(camera.basis.z))
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_float_to_bytes(camera.fov))
+	buffer.append_array(_float_to_bytes(float(width)/ height))
+	
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_float_to_bytes(0.0))
+	
+	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
+	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().length()))
+	
+	rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
+
 func setup_compute_shader():
 	var shader_file = load("res://compute_shader.glsl")
 	var shader_spirv = shader_file.get_spirv()
@@ -104,7 +110,7 @@ func run_compute_shader():
 	var compute_list = rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
 	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
-	rd.compute_list_dispatch(compute_list, 512/8, 512/8, 1)
+	rd.compute_list_dispatch(compute_list, (width + 15)/16, (height + 15)/16, 1)
 	rd.compute_list_end()
 	rd.submit()
 	rd.sync()
@@ -113,7 +119,7 @@ func run_compute_shader():
 	
 func update_texture():
 	var tex_data = rd.texture_get_data(texture_rid, 0)
-	image = Image.create_from_data(512, 512, false, Image.FORMAT_RGBA8, tex_data)
+	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, tex_data)
 	texture.update(image)
 	
 func _vector3_to_bytes(v: Vector3) -> PackedByteArray:
@@ -128,4 +134,5 @@ func _float_to_bytes(f: float) -> PackedByteArray:
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	update_compute_storage()
+	run_compute_shader()
