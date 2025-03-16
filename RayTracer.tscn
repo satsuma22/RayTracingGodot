@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://cka3l6uugpnyv"]
+
+[ext_resource type="Script" uid="uid://csltemryujr18" path="res://ray_tracer.gd" id="1_3kpek"]
+
+[node name="RayTracer" type="Node3D"]
+script = ExtResource("1_3kpek")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 40.0

@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="RayTracingComputeShader"
+run/main_scene="uid://cka3l6uugpnyv"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
