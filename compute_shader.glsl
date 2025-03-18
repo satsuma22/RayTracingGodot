@@ -23,6 +23,7 @@ struct Camera {
 struct Sphere {
     vec3 center;
     float radius;
+    vec4 color;
 };
 
 layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
@@ -90,13 +91,10 @@ void main() {
         if( hit.didHit && hit.t < closestHit.t)
         {
             closestHit = hit;
+            color = spheres[i].color;
+            color.xyz *= dot(closestHit.normal, normalize(-dirWorld));
         }
     }
 
-    if (closestHit.didHit)
-    {
-        color = vec4(1.0, 0.0, 0.0, 1.0);
-        color.xyz *= dot(closestHit.normal, normalize(-dirWorld));
-    }
     imageStore(output_texture, coords, color);
 }

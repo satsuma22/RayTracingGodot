@@ -14,8 +14,6 @@ var width: int = 1080
 var height: int = 720
 
 @onready var camera = $Camera3D
-@onready var sphere = $Sphere1
-@onready var sphere2 = $Sphere2
 @onready var texture_rect = $CanvasLayer/TextureRect
 
 # Called when the node enters the scene tree for the first time.
@@ -68,9 +66,16 @@ func create_compute_storage() -> RID:
 		if child is MeshInstance3D and child.mesh is SphereMesh:
 			var meshInstance = child as MeshInstance3D
 			var sphere = meshInstance.mesh as SphereMesh
+			var material = meshInstance.get_surface_override_material(0) as StandardMaterial3D
+			var color: Vector4;
+			if material == null:
+				color = Vector4(1.0, 1.0, 1.0, 1.0)
+			else:
+				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
 			sphereList.append({
 				"center" : meshInstance.global_transform.origin,
-				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5
+				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5,
+				"color"  : color
 			})	
 	
 	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
@@ -79,6 +84,7 @@ func create_compute_storage() -> RID:
 	for sphere in sphereList:
 		buffer.append_array(_vector3_to_bytes(sphere.center))
 		buffer.append_array(_float_to_bytes(sphere.radius))
+		buffer.append_array(_vector4_to_bytes(sphere.color))
 	
 	buffer_size = buffer.size()
 	return rd.storage_buffer_create(buffer.size(), buffer)
@@ -105,9 +111,16 @@ func update_compute_storage():
 		if child is MeshInstance3D and child.mesh is SphereMesh:
 			var meshInstance = child as MeshInstance3D
 			var sphere = meshInstance.mesh as SphereMesh
+			var material = meshInstance.get_surface_override_material(0) as StandardMaterial3D
+			var color: Vector4;
+			if material == null:
+				color = Vector4(1.0, 1.0, 1.0, 1.0)
+			else:
+				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
 			sphereList.append({
 				"center" : meshInstance.global_transform.origin,
-				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5
+				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5,
+				"color"  : color
 			})	
 	
 	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
@@ -116,6 +129,7 @@ func update_compute_storage():
 	for sphere in sphereList:
 		buffer.append_array(_vector3_to_bytes(sphere.center))
 		buffer.append_array(_float_to_bytes(sphere.radius))
+		buffer.append_array(_vector4_to_bytes(sphere.color))
 	
 	if buffer.size() == buffer_size:
 		rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
@@ -178,6 +192,14 @@ func _vector3_to_bytes(v: Vector3) -> PackedByteArray:
 	bytes.append_array(PackedFloat32Array([v.x]).to_byte_array())
 	bytes.append_array(PackedFloat32Array([v.y]).to_byte_array())
 	bytes.append_array(PackedFloat32Array([v.z]).to_byte_array())
+	return bytes
+	
+func _vector4_to_bytes(v: Vector4) -> PackedByteArray:
+	var bytes := PackedByteArray()
+	bytes.append_array(PackedFloat32Array([v.x]).to_byte_array())
+	bytes.append_array(PackedFloat32Array([v.y]).to_byte_array())
+	bytes.append_array(PackedFloat32Array([v.z]).to_byte_array())
+	bytes.append_array(PackedFloat32Array([v.w]).to_byte_array())
 	return bytes
 	
 func _float_to_bytes(f: float) -> PackedByteArray:

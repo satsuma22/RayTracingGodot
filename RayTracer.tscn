@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://cka3l6uugpnyv"]
+[gd_scene load_steps=5 format=3 uid="uid://cka3l6uugpnyv"]
 
 [ext_resource type="Script" uid="uid://csltemryujr18" path="res://ray_tracer.gd" id="1_3kpek"]
 
@@ -6,9 +6,8 @@
 
 [sub_resource type="SphereMesh" id="SphereMesh_3kpek"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_bj4gm"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_g13ox"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3kpek"]
+albedo_color = Color(0.741568, 0.573499, 0.843899, 1)
 
 [node name="RayTracer" type="Node3D"]
 script = ExtResource("1_3kpek")
@@ -22,16 +21,10 @@ mesh = SubResource("SphereMesh_pgife")
 [node name="Sphere2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.461622, 0, -4.34014)
 mesh = SubResource("SphereMesh_3kpek")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.32509)
-mesh = SubResource("SphereMesh_bj4gm")
+surface_material_override/0 = SubResource("StandardMaterial3D_3kpek")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
 offset_right = 512.0
 offset_bottom = 512.0
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_g13ox")
