@@ -12,10 +12,11 @@ script = ExtResource("1_3kpek")
 [node name="Camera3D" type="Camera3D" parent="."]
 
 [node name="Sphere1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2616, 0, -5.20879)
 mesh = SubResource("SphereMesh_pgife")
 
 [node name="Sphere2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.66404)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.533883, 0, -5.54704)
 mesh = SubResource("SphereMesh_3kpek")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]

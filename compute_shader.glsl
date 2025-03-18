@@ -5,6 +5,14 @@ layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 layout(rgba8, binding = 0) uniform image2D output_texture;
 
+struct Hit
+{
+    bool didHit;
+    float t;
+    vec3 hitPoint;
+    vec3 normal;
+};
+
 struct Camera {
     vec3 position;
     mat3 basis;
@@ -23,23 +31,31 @@ layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
     Sphere spheres[];
 };
 
-float raySphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius)
+Hit raySphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius)
 {
+    Hit hit;
+    hit.didHit = false;
+    
     vec3 oc = origin - center;
     float a = dot(dir, dir);
     float b = 2.0 * dot(oc, dir);
     float c = dot(oc, oc) - radius * radius;
     float discriminant = b * b - 4 * a * c;
 
-    if (discriminant <= 0.0)
+    if (discriminant < 0.0)
     {
-        return 0.0;
+        return hit;
     }
 
     float t1 = (-b - sqrt(discriminant)) / (2 * a);
     float t2 = (-b + sqrt(discriminant)) / (2 * a);
 
-    return t1 > 0.0 ? t1 : t2;
+    hit.didHit = true;
+    hit.t = t1 >= 0.0 ? t1 : t2;
+    hit.hitPoint = origin + dir * hit.t;
+    hit.normal = normalize(hit.hitPoint - center);
+
+    return hit;
 }
 
 void main() {
@@ -64,16 +80,23 @@ void main() {
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
+    Hit closestHit;
+    closestHit.t = 1e9;
+    closestHit.didHit = false;
+
     for (int i = 0; i < SphereCount; i++)
     {
-        float t = raySphereIntersect(origin, dirWorld, spheres[i].center, spheres[i].radius);
-        if( t > 0.0 )
+        Hit hit = raySphereIntersect(origin, dirWorld, spheres[i].center, spheres[i].radius);
+        if( hit.didHit && hit.t < closestHit.t)
         {
-            vec3 normal = normalize(origin + t * dirWorld - spheres[i].center);
-            color = vec4(1.0, 0.0, 0.0, 1.0);
-            color.xyz *= dot(normal, normalize(-dirWorld));
+            closestHit = hit;
         }
     }
 
+    if (closestHit.didHit)
+    {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+        color.xyz *= dot(closestHit.normal, normalize(-dirWorld));
+    }
     imageStore(output_texture, coords, color);
 }
