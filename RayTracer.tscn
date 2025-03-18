@@ -1,6 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cka3l6uugpnyv"]
+[gd_scene load_steps=4 format=3 uid="uid://cka3l6uugpnyv"]
 
 [ext_resource type="Script" uid="uid://csltemryujr18" path="res://ray_tracer.gd" id="1_3kpek"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pgife"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_3kpek"]
 
@@ -9,7 +11,10 @@ script = ExtResource("1_3kpek")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="Sphere1" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_pgife")
+
+[node name="Sphere2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.66404)
 mesh = SubResource("SphereMesh_3kpek")
 

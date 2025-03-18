@@ -13,7 +13,8 @@ var width: int = 800
 var height: int = 600
 
 @onready var camera = $Camera3D
-@onready var sphere = $MeshInstance3D
+@onready var sphere = $Sphere1
+@onready var sphere2 = $Sphere2
 @onready var texture_rect = $CanvasLayer/TextureRect
 
 # Called when the node enters the scene tree for the first time.
@@ -61,11 +62,14 @@ func create_compute_storage() -> RID:
 	buffer.append_array(_float_to_bytes(0.0))
 	buffer.append_array(_float_to_bytes(0.0))
 	
-	buffer.append_array(PackedInt32Array([1]).to_byte_array())
+	buffer.append_array(PackedInt32Array([2]).to_byte_array())
 	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
 	
 	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
 	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().length()))
+	
+	buffer.append_array(_vector3_to_bytes(sphere2.global_transform.origin))
+	buffer.append_array(_float_to_bytes(sphere2.global_transform.basis.get_scale().length()))
 	
 	return rd.storage_buffer_create(buffer.size(), buffer)
 
@@ -86,11 +90,14 @@ func update_compute_storage():
 	buffer.append_array(_float_to_bytes(0.0))
 	buffer.append_array(_float_to_bytes(0.0))
 	
-	buffer.append_array(PackedInt32Array([1]).to_byte_array())
+	buffer.append_array(PackedInt32Array([2]).to_byte_array())
 	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
 	
 	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
 	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().length()))
+	
+	buffer.append_array(_vector3_to_bytes(sphere2.global_transform.origin))
+	buffer.append_array(_float_to_bytes(sphere2.global_transform.basis.get_scale().length()))
 	
 	rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
 

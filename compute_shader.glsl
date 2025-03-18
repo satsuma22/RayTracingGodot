@@ -20,7 +20,7 @@ struct Sphere {
 layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
     Camera camera;
     uint SphereCount;
-    Sphere sphere;
+    Sphere spheres[];
 };
 
 float raySphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius)
@@ -66,10 +66,10 @@ void main() {
 
     for (int i = 0; i < SphereCount; i++)
     {
-        float t = raySphereIntersect(origin, dirWorld, sphere.center, sphere.radius);
+        float t = raySphereIntersect(origin, dirWorld, spheres[i].center, spheres[i].radius);
         if( t > 0.0 )
         {
-            vec3 normal = normalize(origin + t * dirWorld - sphere.center);
+            vec3 normal = normalize(origin + t * dirWorld - spheres[i].center);
             color = vec4(1.0, 0.0, 0.0, 1.0);
             color.xyz *= dot(normal, normalize(-dirWorld));
         }
