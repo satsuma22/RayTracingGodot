@@ -7,7 +7,8 @@ var texture_rid: RID
 var storage_buffer_rid: RID
 var shader: RID
 var pipeline: RID
-var uniform_set: RID
+var uniform_set_rid: RID
+var buffer_size: int
 
 var width: int = 1080
 var height: int = 720
@@ -62,15 +63,24 @@ func create_compute_storage() -> RID:
 	buffer.append_array(_float_to_bytes(0.0))
 	buffer.append_array(_float_to_bytes(0.0))
 	
-	buffer.append_array(PackedInt32Array([2]).to_byte_array())
+	var sphereList := []
+	for child in get_children():
+		if child is MeshInstance3D and child.mesh is SphereMesh:
+			var meshInstance = child as MeshInstance3D
+			var sphere = meshInstance.mesh as SphereMesh
+			sphereList.append({
+				"center" : meshInstance.global_transform.origin,
+				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5
+			})	
+	
+	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
 	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
 	
-	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
-	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().x * 0.5))
+	for sphere in sphereList:
+		buffer.append_array(_vector3_to_bytes(sphere.center))
+		buffer.append_array(_float_to_bytes(sphere.radius))
 	
-	buffer.append_array(_vector3_to_bytes(sphere2.global_transform.origin))
-	buffer.append_array(_float_to_bytes(sphere2.global_transform.basis.get_scale().x * 0.5))
-	
+	buffer_size = buffer.size()
 	return rd.storage_buffer_create(buffer.size(), buffer)
 
 func update_compute_storage():
@@ -89,17 +99,31 @@ func update_compute_storage():
 	
 	buffer.append_array(_float_to_bytes(0.0))
 	buffer.append_array(_float_to_bytes(0.0))
+
+	var sphereList := []
+	for child in get_children():
+		if child is MeshInstance3D and child.mesh is SphereMesh:
+			var meshInstance = child as MeshInstance3D
+			var sphere = meshInstance.mesh as SphereMesh
+			sphereList.append({
+				"center" : meshInstance.global_transform.origin,
+				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5
+			})	
 	
-	buffer.append_array(PackedInt32Array([2]).to_byte_array())
+	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
 	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
 	
-	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
-	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().x * 0.5))
+	for sphere in sphereList:
+		buffer.append_array(_vector3_to_bytes(sphere.center))
+		buffer.append_array(_float_to_bytes(sphere.radius))
 	
-	buffer.append_array(_vector3_to_bytes(sphere2.global_transform.origin))
-	buffer.append_array(_float_to_bytes(sphere2.global_transform.basis.get_scale().x * 0.5))
-	
-	rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
+	if buffer.size() == buffer_size:
+		rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
+	else:
+		rd.free_rid(storage_buffer_rid)
+		storage_buffer_rid = rd.storage_buffer_create(buffer.size(), buffer)
+		buffer_size = buffer.size()
+		_update_uniform_set()
 
 func setup_compute_shader():
 	var shader_file = load("res://compute_shader.glsl")
@@ -117,12 +141,26 @@ func setup_compute_shader():
 	buffer_uniform.binding = 1
 	buffer_uniform.add_id(storage_buffer_rid)
 	
-	uniform_set = rd.uniform_set_create([texture_uniform, buffer_uniform], shader, 0)
+	uniform_set_rid = rd.uniform_set_create([texture_uniform, buffer_uniform], shader, 0)
 
+func _update_uniform_set():
+	var texture_uniform = RDUniform.new()
+	texture_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE
+	texture_uniform.binding = 0
+	texture_uniform.add_id(texture_rid)
+	
+	var buffer_uniform := RDUniform.new()
+	buffer_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	buffer_uniform.binding = 1
+	buffer_uniform.add_id(storage_buffer_rid)
+	
+	rd.free_rid(uniform_set_rid)
+	uniform_set_rid = rd.uniform_set_create([texture_uniform, buffer_uniform], shader, 0)
+	
 func run_compute_shader():
 	var compute_list = rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
-	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
+	rd.compute_list_bind_uniform_set(compute_list, uniform_set_rid, 0)
 	rd.compute_list_dispatch(compute_list, (width + 15)/16, (height + 15)/16, 1)
 	rd.compute_list_end()
 	rd.submit()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://cka3l6uugpnyv"]
+[gd_scene load_steps=6 format=3 uid="uid://cka3l6uugpnyv"]
 
 [ext_resource type="Script" uid="uid://csltemryujr18" path="res://ray_tracer.gd" id="1_3kpek"]
 
@@ -6,21 +6,32 @@
 
 [sub_resource type="SphereMesh" id="SphereMesh_3kpek"]
 
+[sub_resource type="SphereMesh" id="SphereMesh_bj4gm"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_g13ox"]
+
 [node name="RayTracer" type="Node3D"]
 script = ExtResource("1_3kpek")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 
 [node name="Sphere1" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2616, 0, -5.20879)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2616, 0, -4.00189)
 mesh = SubResource("SphereMesh_pgife")
 
 [node name="Sphere2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.533883, 0, -5.54704)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.461622, 0, -4.34014)
 mesh = SubResource("SphereMesh_3kpek")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.32509)
+mesh = SubResource("SphereMesh_bj4gm")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
 offset_right = 512.0
 offset_bottom = 512.0
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_g13ox")
