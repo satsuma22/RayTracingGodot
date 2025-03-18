@@ -71,7 +71,7 @@ void main() {
         {
             vec3 normal = normalize(origin + t * dirWorld - sphere.center);
             color = vec4(1.0, 0.0, 0.0, 1.0);
-            //color.xyz *= dot(normal, normalize(-dirWorld));
+            color.xyz *= dot(normal, normalize(-dirWorld));
         }
     }
 
