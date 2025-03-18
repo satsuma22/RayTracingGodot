@@ -61,6 +61,9 @@ func create_compute_storage() -> RID:
 	buffer.append_array(_float_to_bytes(0.0))
 	buffer.append_array(_float_to_bytes(0.0))
 	
+	buffer.append_array(PackedInt32Array([1]).to_byte_array())
+	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
+	
 	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
 	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().length()))
 	
@@ -82,6 +85,9 @@ func update_compute_storage():
 	
 	buffer.append_array(_float_to_bytes(0.0))
 	buffer.append_array(_float_to_bytes(0.0))
+	
+	buffer.append_array(PackedInt32Array([1]).to_byte_array())
+	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
 	
 	buffer.append_array(_vector3_to_bytes(sphere.global_transform.origin))
 	buffer.append_array(_float_to_bytes(sphere.global_transform.basis.get_scale().length()))

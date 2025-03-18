@@ -19,10 +19,11 @@ struct Sphere {
 
 layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
     Camera camera;
+    uint SphereCount;
     Sphere sphere;
 };
 
-bool raySphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius)
+float raySphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius)
 {
     vec3 oc = origin - center;
     float a = dot(dir, dir);
@@ -32,10 +33,13 @@ bool raySphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius)
 
     if (discriminant <= 0.0)
     {
-        return false;
+        return 0.0;
     }
 
-    return true;
+    float t1 = (-b - sqrt(discriminant)) / (2 * a);
+    float t2 = (-b + sqrt(discriminant)) / (2 * a);
+
+    return t1 > 0.0 ? t1 : t2;
 }
 
 void main() {
@@ -60,10 +64,16 @@ void main() {
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if( raySphereIntersect(origin, dirWorld, sphere.center, sphere.radius) )
+    for (int i = 0; i < SphereCount; i++)
     {
-        color = vec4(1.0, 0.0, 0.0, 1.0);
+        float t = raySphereIntersect(origin, dirWorld, sphere.center, sphere.radius);
+        if( t > 0.0 )
+        {
+            vec3 normal = normalize(origin + t * dirWorld - sphere.center);
+            color = vec4(1.0, 0.0, 0.0, 1.0);
+            //color.xyz *= dot(normal, normalize(-dirWorld));
+        }
     }
-    
+
     imageStore(output_texture, coords, color);
 }
