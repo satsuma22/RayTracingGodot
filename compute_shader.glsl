@@ -75,27 +75,53 @@ vec3 HemisphereSampling(vec3 normal, inout uint seed)
 Hit raySphereIntersect(Ray ray, Sphere sphere)
 {
     Hit hit;
-    hit.didHit = false;
-    
-    vec3 oc = ray.origin - sphere.center;
-    float a = dot(ray.dir, ray.dir);
-    float b = 2.0 * dot(oc, ray.dir);
-    float c = dot(oc, oc) - sphere.radius * sphere.radius;
-    float discriminant = b * b - 4 * a * c;
 
+    // Vector from ray origin to sphere center
+    vec3 oc = ray.origin - sphere.center;
+
+    // Coefficients for the quadratic equation: t^2 + 2bt + c = 0
+    // Since ray.dir is normalized, a = dot(ray.dir, ray.dir) = 1
+    float b = dot(oc, ray.dir);
+    float c = dot(oc, oc) - sphere.radius * sphere.radius;
+
+    // Compute the discriminant
+    float discriminant = b * b - c;
+
+    // If discriminant is negative, no real intersection occurs
     if (discriminant < 0.0)
     {
+        hit.didHit = false;
         return hit;
     }
 
-    float t1 = (-b - sqrt(discriminant)) / (2 * a);
-    float t2 = (-b + sqrt(discriminant)) / (2 * a);
+    // Compute the two possible intersection distances
+    float sqrtDisc = sqrt(discriminant);
+    float t1 = -b - sqrtDisc;  // Closer intersection
+    float t2 = -b + sqrtDisc;  // Farther intersection
 
+    // Select the smallest positive t
+    float t;
+    if (t1 > 0.0)
+    {
+        t = t1;  // t1 is positive, use it as it's the closest
+    }
+    else if (t2 > 0.0)
+    {
+        t = t2;  // t1 is negative, but t2 is positive
+    }
+    else
+    {
+        // Both t1 and t2 are negative, no intersection in ray's direction
+        hit.didHit = false;
+        return hit;
+    }
+
+    // Intersection occurred, fill in the hit details
     hit.didHit = true;
-    hit.t = t1 >= 0.0 ? t1 : t2;
-    hit.hitPoint = ray.origin + ray.dir * hit.t;
+    hit.t = t;
+    hit.hitPoint = ray.origin + t * ray.dir;
     hit.normal = normalize(hit.hitPoint - sphere.center);
-    hit.color = vec3(sphere.color.xyz);
+    hit.color = sphere.color.xyz;  // Assuming sphere.color is vec4, take RGB
     hit.emission_color = sphere.emission_color;
     hit.emission_strength = sphere.emission_strength;
 
@@ -122,7 +148,7 @@ Hit GetRayCollision(Ray ray)
 
 vec3 Trace(Ray ray, inout uint seed)
 {
-    int maxBounces = 2;
+    int maxBounces = 32;
     
     vec3 incomingLight = vec3(0.0, 0.0, 0.0);
     vec3 rayColor = vec3(1.0, 1.0, 1.0);
@@ -132,8 +158,8 @@ vec3 Trace(Ray ray, inout uint seed)
         Hit hit = GetRayCollision(ray);
         if (hit.didHit)
         {
-            ray.origin = hit.hitPoint;
             ray.dir = HemisphereSampling(hit.normal, seed);
+            ray.origin = hit.hitPoint + 0.001 * hit.normal;
 
             vec3 emittedLight = hit.emission_color * hit.emission_strength;
             incomingLight += emittedLight * rayColor;
@@ -171,7 +197,13 @@ void main() {
 
     uint seed = coords.y * imageSize.x + coords.x;
 
-    vec3 color = Trace(ray, seed);
+    int numRayPerPixel = 128;
+    vec3 color = vec3(0.0, 0.0, 0.0);
+
+    for (int i = 0; i < numRayPerPixel; i++)
+        color += Trace(ray, seed);
+
+    color /= numRayPerPixel;
 
     imageStore(output_texture, coords, vec4(color.xyz, 1));
 }
