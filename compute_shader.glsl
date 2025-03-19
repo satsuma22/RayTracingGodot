@@ -146,6 +146,19 @@ Hit GetRayCollision(Ray ray)
     return closestHit;
 }
 
+vec3 GetEnvironmentLight(Ray ray)
+{
+    vec3 SkyColorHorizon = vec3(0.7, 0.7, 0.8);
+    vec3 SkyColorZenith = vec3(0.4, 0.7, 0.8);
+    vec3 GroundColor = vec3(0.7, 0.6, 0.4);
+
+    float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
+    vec3 skyGradient = (1 - skyGradientT) * SkyColorHorizon + skyGradientT * SkyColorZenith;
+    
+    float groundToSkyT = smoothstep(-0.01, 0, ray.dir.y);
+    return (1 - groundToSkyT) * GroundColor + groundToSkyT * skyGradient;
+}
+
 vec3 Trace(Ray ray, inout uint seed)
 {
     int maxBounces = 32;
@@ -167,6 +180,7 @@ vec3 Trace(Ray ray, inout uint seed)
         }
         else
         {
+            incomingLight += GetEnvironmentLight(ray) * rayColor;
             break;
         }
     }

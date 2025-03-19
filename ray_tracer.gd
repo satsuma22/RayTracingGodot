@@ -203,8 +203,10 @@ func run_compute_shader():
 	update_texture()
 	
 func update_texture():
-	var tex_data = rd.texture_get_data(texture_rid, 0)
-	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, tex_data)
+	var tex_data_new = rd.texture_get_data(texture_rid, 0)
+	
+	
+	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, tex_data_new)
 	texture.update(image)
 	
 func _vector3_to_bytes(v: Vector3) -> PackedByteArray:
