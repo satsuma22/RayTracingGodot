@@ -12,6 +12,7 @@ var buffer_size: int
 
 var width: int = 1080
 var height: int = 720
+var sampleCount: int = 1
 
 @onready var camera = $Camera3D
 @onready var texture_rect = $CanvasLayer/TextureRect
@@ -86,8 +87,10 @@ func create_compute_storage() -> RID:
 				"emission_strength" : emission_strength
 			})	
 	
+	buffer.append_array(PackedInt32Array([sampleCount]).to_byte_array())
 	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
-	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_float_to_bytes(0.0))
 	
 	for sphere in sphereList:
 		buffer.append_array(_vector3_to_bytes(sphere.center))
@@ -141,8 +144,10 @@ func update_compute_storage():
 				"emission_strength" : emission_strength
 			})	
 	
+	buffer.append_array(PackedInt32Array([sampleCount]).to_byte_array())
 	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
-	buffer.append_array(_vector3_to_bytes(Vector3(0.0, 0.0, 0.0)))
+	buffer.append_array(_float_to_bytes(0.0))
+	buffer.append_array(_float_to_bytes(0.0))
 	
 	for sphere in sphereList:
 		buffer.append_array(_vector3_to_bytes(sphere.center))
@@ -204,8 +209,6 @@ func run_compute_shader():
 	
 func update_texture():
 	var tex_data_new = rd.texture_get_data(texture_rid, 0)
-	
-	
 	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBAF, tex_data_new)
 	texture.update(image)
 	
@@ -229,5 +232,6 @@ func _float_to_bytes(f: float) -> PackedByteArray:
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	sampleCount += 1
 	update_compute_storage()
 	run_compute_shader()

@@ -22,6 +22,7 @@ struct Sphere {
 
 layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
     Camera camera;
+    uint frameNumber;
     uint SphereCount;
     Sphere spheres[];
 };
@@ -211,7 +212,7 @@ void main() {
     ray.origin = camera.position;
     ray.dir = normalize(camera.basis * dirCamera);
 
-    uint seed = coords.y * imageSize.x + coords.x;
+    uint seed = (coords.y * imageSize.x + coords.x) + frameNumber * 7791234;
 
     int numRayPerPixel = 32;
     vec3 color = vec3(0.0, 0.0, 0.0);
@@ -221,5 +222,7 @@ void main() {
 
     color /= numRayPerPixel;
 
+    vec4 prevColor = imageLoad(output_texture, coords);
+    color = (prevColor.xyz * (frameNumber - 1) + color) / float(frameNumber);
     imageStore(output_texture, coords, vec4(color.xyz, 1));
 }
