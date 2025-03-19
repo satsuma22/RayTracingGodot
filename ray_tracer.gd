@@ -72,6 +72,8 @@ func create_compute_storage() -> RID:
 			var emission_strength: float
 			if material == null:
 				color = Vector4(1.0, 1.0, 1.0, 1.0)
+				emission_color = Vector3(0.0, 0.0, 0.0)
+				emission_strength = 0.0
 			else:
 				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
 				emission_color = Vector3(material.emission.r, material.emission.g, material.emission.b)
@@ -125,6 +127,8 @@ func update_compute_storage():
 			var emission_strength: float
 			if material == null:
 				color = Vector4(1.0, 1.0, 1.0, 1.0)
+				emission_color = Vector3(0.0, 0.0, 0.0)
+				emission_strength = 0.0
 			else:
 				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
 				emission_color = Vector3(material.emission.r, material.emission.g, material.emission.b)
