@@ -171,7 +171,9 @@ vec3 Trace(Ray ray, inout uint seed)
         Hit hit = GetRayCollision(ray);
         if (hit.didHit)
         {
-            ray.dir = HemisphereSampling(hit.normal, seed);
+            //ray.dir = HemisphereSampling(hit.normal, seed);
+            // cosine weighted sampling
+            ray.dir = normalize(hit.normal + RandomDirection(seed));
             ray.origin = hit.hitPoint + 0.001 * hit.normal;
 
             vec3 emittedLight = hit.emission_color * hit.emission_strength;
