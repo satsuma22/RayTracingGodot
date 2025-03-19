@@ -161,7 +161,7 @@ vec3 GetEnvironmentLight(Ray ray)
 
 vec3 Trace(Ray ray, inout uint seed)
 {
-    int maxBounces = 2;
+    int maxBounces = 4;
     
     vec3 incomingLight = vec3(0.0, 0.0, 0.0);
     vec3 rayColor = vec3(1.0, 1.0, 1.0);
