@@ -3,7 +3,7 @@
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-layout(rgba8, binding = 0) uniform image2D output_texture;
+layout(rgba32f, binding = 0) uniform image2D output_texture;
 
 struct Camera {
     vec3 position;
@@ -161,7 +161,7 @@ vec3 GetEnvironmentLight(Ray ray)
 
 vec3 Trace(Ray ray, inout uint seed)
 {
-    int maxBounces = 32;
+    int maxBounces = 2;
     
     vec3 incomingLight = vec3(0.0, 0.0, 0.0);
     vec3 rayColor = vec3(1.0, 1.0, 1.0);
@@ -211,7 +211,7 @@ void main() {
 
     uint seed = coords.y * imageSize.x + coords.x;
 
-    int numRayPerPixel = 128;
+    int numRayPerPixel = 32;
     vec3 color = vec3(0.0, 0.0, 0.0);
 
     for (int i = 0; i < numRayPerPixel; i++)

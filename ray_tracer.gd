@@ -20,7 +20,7 @@ var height: int = 720
 func _ready() -> void:
 	rd = RenderingServer.create_local_rendering_device()
 	
-	image = Image.create_empty(width, height, false,Image.FORMAT_RGBA8)
+	image = Image.create_empty(width, height, false,Image.FORMAT_RGBAF)
 	image.fill(Color(0,0,0,1))
 	
 	texture_rid = create_compute_texture()
@@ -36,7 +36,7 @@ func create_compute_texture() -> RID:
 	var tex_format = RDTextureFormat.new()
 	tex_format.width = width
 	tex_format.height = height
-	tex_format.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
+	tex_format.format = RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
 	tex_format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
 	
 	#var img_data = image.get_data()
@@ -206,7 +206,7 @@ func update_texture():
 	var tex_data_new = rd.texture_get_data(texture_rid, 0)
 	
 	
-	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, tex_data_new)
+	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBAF, tex_data_new)
 	texture.update(image)
 	
 func _vector3_to_bytes(v: Vector3) -> PackedByteArray:

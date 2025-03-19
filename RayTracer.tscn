@@ -63,7 +63,7 @@ transform = Transform3D(40, 0, 0, 0, 40, 0, 0, 0, 40, 0, -20.2437, -10.2675)
 mesh = SubResource("SphereMesh_s3uwi")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(5, 0, 0, 0, 4.82963, 1.2941, 0, -1.2941, 4.82963, 0.488716, 6.50904, -13.2931)
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -0.0977478, 0.937677, -11.045)
 mesh = SubResource("SphereMesh_143fc")
 skeleton = NodePath("../Camera3D")
 surface_material_override/0 = SubResource("StandardMaterial3D_g6nka")
