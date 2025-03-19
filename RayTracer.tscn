@@ -1,25 +1,43 @@
-[gd_scene load_steps=5 format=3 uid="uid://cka3l6uugpnyv"]
+[gd_scene load_steps=8 format=3 uid="uid://cka3l6uugpnyv"]
 
 [ext_resource type="Script" uid="uid://csltemryujr18" path="res://ray_tracer.gd" id="1_3kpek"]
 
+[sub_resource type="SphereMesh" id="SphereMesh_bj4gm"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g13ox"]
+albedo_color = Color(0, 0, 0, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+
 [sub_resource type="SphereMesh" id="SphereMesh_pgife"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pgife"]
+albedo_color = Color(0.662745, 0.470588, 1, 1)
+emission_enabled = true
 
 [sub_resource type="SphereMesh" id="SphereMesh_3kpek"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3kpek"]
-albedo_color = Color(0.741568, 0.573499, 0.843899, 1)
+albedo_color = Color(0.945174, 0.436603, 0.791119, 1)
+emission_enabled = true
 
 [node name="RayTracer" type="Node3D"]
 script = ExtResource("1_3kpek")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 
+[node name="Light" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.37579)
+mesh = SubResource("SphereMesh_bj4gm")
+surface_material_override/0 = SubResource("StandardMaterial3D_g13ox")
+
 [node name="Sphere1" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2616, 0, -4.00189)
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 2.41974, -0.000747442, -2.56296)
 mesh = SubResource("SphereMesh_pgife")
+surface_material_override/0 = SubResource("StandardMaterial3D_pgife")
 
 [node name="Sphere2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.461622, 0, -4.34014)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.95051, 0, -2.53041)
 mesh = SubResource("SphereMesh_3kpek")
 surface_material_override/0 = SubResource("StandardMaterial3D_3kpek")
 
