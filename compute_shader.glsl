@@ -19,6 +19,7 @@ struct Sphere {
     vec3 emission_color;
     float emission_strength;
     float roughness;
+    float metallic_specular;
 };
 
 layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
@@ -38,6 +39,7 @@ struct Hit
     vec3 emission_color;
     float emission_strength;
     float roughness;
+    float metallic_specular;
 };
 
 struct Ray
@@ -128,6 +130,7 @@ Hit raySphereIntersect(Ray ray, Sphere sphere)
     hit.emission_color = sphere.emission_color;
     hit.emission_strength = sphere.emission_strength;
     hit.roughness = sphere.roughness;
+    hit.metallic_specular = sphere.metallic_specular;
 
     return hit;
 }
@@ -180,11 +183,14 @@ vec3 Trace(Ray ray, inout uint seed)
             // cosine weighted sampling
             vec3 diffuseDir = normalize(hit.normal + RandomDirection(seed));
             vec3 specularDir = reflect(ray.dir, hit.normal);
-            ray.dir = (1 - hit.roughness) * specularDir + hit.roughness * diffuseDir;
+            bool isSpecularBounce = hit.metallic_specular >= UniformRandom(seed);
+            float roughness = isSpecularBounce? hit.roughness : 1.0;
+            //float roughness = hit.roughness;
+            ray.dir = (1 - roughness) * specularDir + roughness * diffuseDir;
 
             vec3 emittedLight = hit.emission_color * hit.emission_strength;
             incomingLight += emittedLight * rayColor;
-            rayColor *= hit.color;
+            rayColor *= isSpecularBounce ? vec3(1.0, 1.0, 1.0) : hit.color;
         }
         else
         {

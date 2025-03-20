@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cka3l6uugpnyv"]
+[gd_scene load_steps=14 format=3 uid="uid://cka3l6uugpnyv"]
 
 [ext_resource type="Script" uid="uid://csltemryujr18" path="res://ray_tracer.gd" id="1_3kpek"]
 
@@ -8,12 +8,13 @@
 albedo_color = Color(0, 0, 0, 1)
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 1.6
+emission_energy_multiplier = 2.6
 
 [sub_resource type="SphereMesh" id="SphereMesh_pgife"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pgife"]
 albedo_color = Color(0.662745, 0.470588, 1, 1)
+metallic_specular = 0.27
 emission_enabled = true
 emission = Color(0.662745, 0.47451, 1, 1)
 emission_energy_multiplier = 0.4
@@ -30,6 +31,8 @@ emission_energy_multiplier = 0.1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s3uwi"]
 albedo_color = Color(0.843137, 0, 0.00784314, 1)
+metallic_specular = 0.4
+roughness = 0.4
 emission_enabled = true
 emission = Color(1, 0, 0, 1)
 emission_energy_multiplier = 0.2
@@ -40,6 +43,11 @@ subsurf_scatter_enabled = true
 [sub_resource type="SphereMesh" id="SphereMesh_143fc"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g6nka"]
+metallic_specular = 1.0
+roughness = 0.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3kpek"]
+metallic_specular = 0.3
 roughness = 0.0
 
 [node name="RayTracer" type="Node3D"]
@@ -73,16 +81,16 @@ transform = Transform3D(40, 0, 0, 0, 40, 0, 0, 0, 40, 0, -20.2437, -10.2675)
 mesh = SubResource("SphereMesh_s3uwi")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(4, 0, 0, 0, 3.4641, 2, 0, -2, 3.4641, 3.87307, 3.38904, -13.9826)
+transform = Transform3D(4, 0, 0, 0, 3.4641, 2, 0, -2, 3.4641, 3.32948, 3.38904, -13.9826)
 mesh = SubResource("SphereMesh_143fc")
 skeleton = NodePath("../Camera3D")
 surface_material_override/0 = SubResource("StandardMaterial3D_g6nka")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(3, 0, 0, 0, 2.89778, 0.776457, 0, -0.776457, 2.89778, -0.0977478, 2.88654, -11.045)
+transform = Transform3D(3, 0, 0, 0, 2.89778, 0.776457, 0, -0.776457, 2.89778, -0.417357, 2.88654, -11.045)
 mesh = SubResource("SphereMesh_143fc")
 skeleton = NodePath("../Camera3D")
-surface_material_override/0 = SubResource("StandardMaterial3D_g6nka")
+surface_material_override/0 = SubResource("StandardMaterial3D_3kpek")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
