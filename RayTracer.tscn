@@ -8,7 +8,7 @@
 albedo_color = Color(0, 0, 0, 1)
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 1.4
+emission_energy_multiplier = 1.6
 
 [sub_resource type="SphereMesh" id="SphereMesh_pgife"]
 
@@ -24,30 +24,32 @@ emission_energy_multiplier = 0.4
 albedo_color = Color(0.67385, 0.982437, 0.489077, 1)
 emission_enabled = true
 emission = Color(0.666667, 0.960784, 0.423529, 1)
-emission_energy_multiplier = 0.4
+emission_energy_multiplier = 0.1
 
 [sub_resource type="SphereMesh" id="SphereMesh_g13ox"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s3uwi"]
-albedo_color = Color(0.926433, 0, 0.00593799, 1)
+albedo_color = Color(0.843137, 0, 0.00784314, 1)
 emission_enabled = true
 emission = Color(1, 0, 0, 1)
-emission_energy_multiplier = 0.4
+emission_energy_multiplier = 0.2
+subsurf_scatter_enabled = true
 
 [sub_resource type="SphereMesh" id="SphereMesh_s3uwi"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_143fc"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g6nka"]
+roughness = 0.0
 
 [node name="RayTracer" type="Node3D"]
 script = ExtResource("1_3kpek")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 2.30608, 0)
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 2.00608, 0)
 
 [node name="Light" type="MeshInstance3D" parent="."]
-transform = Transform3D(20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 14.8851, -28.2604)
+transform = Transform3D(20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 26.1601, -28.2604)
 mesh = SubResource("SphereMesh_bj4gm")
 surface_material_override/0 = SubResource("StandardMaterial3D_g13ox")
 
@@ -70,8 +72,14 @@ surface_material_override/0 = SubResource("StandardMaterial3D_s3uwi")
 transform = Transform3D(40, 0, 0, 0, 40, 0, 0, 0, 40, 0, -20.2437, -10.2675)
 mesh = SubResource("SphereMesh_s3uwi")
 
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(4, 0, 0, 0, 3.4641, 2, 0, -2, 3.4641, 3.87307, 3.38904, -13.9826)
+mesh = SubResource("SphereMesh_143fc")
+skeleton = NodePath("../Camera3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_g6nka")
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, -0.0977478, 0.937677, -11.045)
+transform = Transform3D(3, 0, 0, 0, 2.89778, 0.776457, 0, -0.776457, 2.89778, -0.0977478, 2.88654, -11.045)
 mesh = SubResource("SphereMesh_143fc")
 skeleton = NodePath("../Camera3D")
 surface_material_override/0 = SubResource("StandardMaterial3D_g6nka")
@@ -79,5 +87,8 @@ surface_material_override/0 = SubResource("StandardMaterial3D_g6nka")
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
-offset_right = 512.0
-offset_bottom = 512.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

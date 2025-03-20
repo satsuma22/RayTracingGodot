@@ -18,6 +18,7 @@ struct Sphere {
     vec4 color;
     vec3 emission_color;
     float emission_strength;
+    float roughness;
 };
 
 layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
@@ -36,6 +37,7 @@ struct Hit
     vec3 color;
     vec3 emission_color;
     float emission_strength;
+    float roughness;
 };
 
 struct Ray
@@ -125,6 +127,7 @@ Hit raySphereIntersect(Ray ray, Sphere sphere)
     hit.color = sphere.color.xyz;  // Assuming sphere.color is vec4, take RGB
     hit.emission_color = sphere.emission_color;
     hit.emission_strength = sphere.emission_strength;
+    hit.roughness = sphere.roughness;
 
     return hit;
 }
@@ -162,7 +165,7 @@ vec3 GetEnvironmentLight(Ray ray)
 
 vec3 Trace(Ray ray, inout uint seed)
 {
-    int maxBounces = 4;
+    int maxBounces = 16;
     
     vec3 incomingLight = vec3(0.0, 0.0, 0.0);
     vec3 rayColor = vec3(1.0, 1.0, 1.0);
@@ -172,10 +175,12 @@ vec3 Trace(Ray ray, inout uint seed)
         Hit hit = GetRayCollision(ray);
         if (hit.didHit)
         {
+            ray.origin = hit.hitPoint + 0.001 * hit.normal;
             //ray.dir = HemisphereSampling(hit.normal, seed);
             // cosine weighted sampling
-            ray.dir = normalize(hit.normal + RandomDirection(seed));
-            ray.origin = hit.hitPoint + 0.001 * hit.normal;
+            vec3 diffuseDir = normalize(hit.normal + RandomDirection(seed));
+            vec3 specularDir = reflect(ray.dir, hit.normal);
+            ray.dir = (1 - hit.roughness) * specularDir + hit.roughness * diffuseDir;
 
             vec3 emittedLight = hit.emission_color * hit.emission_strength;
             incomingLight += emittedLight * rayColor;

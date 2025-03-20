@@ -71,20 +71,24 @@ func create_compute_storage() -> RID:
 			var color: Vector4
 			var emission_color: Vector3
 			var emission_strength: float
+			var roughness: float
 			if material == null:
 				color = Vector4(1.0, 1.0, 1.0, 1.0)
 				emission_color = Vector3(0.0, 0.0, 0.0)
 				emission_strength = 0.0
+				roughness = 1.0
 			else:
 				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
 				emission_color = Vector3(material.emission.r, material.emission.g, material.emission.b)
 				emission_strength = material.emission_energy_multiplier
+				roughness = material.roughness
 			sphereList.append({
 				"center" : meshInstance.global_transform.origin,
 				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5,
 				"color"  : color,
 				"emission_color" : emission_color,
-				"emission_strength" : emission_strength
+				"emission_strength" : emission_strength,
+				"roughness" : roughness
 			})	
 	
 	buffer.append_array(PackedInt32Array([sampleCount]).to_byte_array())
@@ -98,6 +102,8 @@ func create_compute_storage() -> RID:
 		buffer.append_array(_vector4_to_bytes(sphere.color))
 		buffer.append_array(_vector3_to_bytes(sphere.emission_color))
 		buffer.append_array(_float_to_bytes(sphere.emission_strength))
+		buffer.append_array(_float_to_bytes(sphere.roughness))
+		buffer.append_array(_vector3_to_bytes(Vector3(0,0,0)))
 	
 	buffer_size = buffer.size()
 	return rd.storage_buffer_create(buffer.size(), buffer)
@@ -128,20 +134,24 @@ func update_compute_storage():
 			var color: Vector4
 			var emission_color: Vector3
 			var emission_strength: float
+			var roughness: float
 			if material == null:
 				color = Vector4(1.0, 1.0, 1.0, 1.0)
 				emission_color = Vector3(0.0, 0.0, 0.0)
 				emission_strength = 0.0
+				roughness = 1.0
 			else:
 				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
 				emission_color = Vector3(material.emission.r, material.emission.g, material.emission.b)
 				emission_strength = material.emission_energy_multiplier
+				roughness = material.roughness
 			sphereList.append({
 				"center" : meshInstance.global_transform.origin,
 				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5,
 				"color"  : color,
 				"emission_color" : emission_color,
-				"emission_strength" : emission_strength
+				"emission_strength" : emission_strength,
+				"roughness" : roughness
 			})	
 	
 	buffer.append_array(PackedInt32Array([sampleCount]).to_byte_array())
@@ -155,6 +165,8 @@ func update_compute_storage():
 		buffer.append_array(_vector4_to_bytes(sphere.color))
 		buffer.append_array(_vector3_to_bytes(sphere.emission_color))
 		buffer.append_array(_float_to_bytes(sphere.emission_strength))
+		buffer.append_array(_float_to_bytes(sphere.roughness))
+		buffer.append_array(_vector3_to_bytes(Vector3(0,0,0)))
 	
 	if buffer.size() == buffer_size:
 		rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
