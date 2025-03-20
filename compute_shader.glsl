@@ -29,6 +29,11 @@ layout(set = 0, binding = 1, std430) restrict buffer Uniforms {
     Sphere spheres[];
 };
 
+layout(set = 0, binding = 2, std430) restrict buffer Params {
+    uint num_bounces;
+    uint rays_per_pixel;
+}
+;
 struct Hit
 {
     bool didHit;
@@ -168,12 +173,10 @@ vec3 GetEnvironmentLight(Ray ray)
 
 vec3 Trace(Ray ray, inout uint seed)
 {
-    int maxBounces = 16;
-    
     vec3 incomingLight = vec3(0.0, 0.0, 0.0);
     vec3 rayColor = vec3(1.0, 1.0, 1.0);
 
-    for(int i = 0; i < maxBounces; i++)
+    for(int i = 0; i < num_bounces; i++)
     {
         Hit hit = GetRayCollision(ray);
         if (hit.didHit)
@@ -225,13 +228,12 @@ void main() {
 
     uint seed = (coords.y * imageSize.x + coords.x) + frameNumber * 7791234;
 
-    int numRayPerPixel = 32;
     vec3 color = vec3(0.0, 0.0, 0.0);
 
-    for (int i = 0; i < numRayPerPixel; i++)
+    for (int i = 0; i < rays_per_pixel; i++)
         color += Trace(ray, seed);
 
-    color /= numRayPerPixel;
+    color /= rays_per_pixel;
 
     vec4 prevColor = imageLoad(output_texture, coords);
     color = (prevColor.xyz * (frameNumber - 1) + color) / float(frameNumber);

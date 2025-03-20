@@ -5,6 +5,7 @@ var texture: ImageTexture
 var rd: RenderingDevice
 var texture_rid: RID
 var storage_buffer_rid: RID
+var param_buffer_rid: RID
 var shader: RID
 var pipeline: RID
 var uniform_set_rid: RID
@@ -14,8 +15,14 @@ var width: int = 1920
 var height: int = 1080
 var sampleCount: int = 1
 
+var num_bounces = 10;
+var rays_per_pixel = 32;
+
+
 @onready var camera = $Camera3D
 @onready var texture_rect = $CanvasLayer/TextureRect
+@onready var bounces_spin_box = $CanvasLayer/BouncesSpinBox
+@onready var rays_spin_box = $CanvasLayer/RaysSpinBox
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -26,9 +33,13 @@ func _ready() -> void:
 	
 	texture_rid = create_compute_texture()
 	storage_buffer_rid = create_compute_storage()
+	param_buffer_rid = create_param_storage()
 	
 	texture = ImageTexture.create_from_image(image)
 	texture_rect.texture = texture
+	
+	bounces_spin_box.value = num_bounces
+	rays_spin_box.value = rays_per_pixel
 	
 	setup_compute_shader()
 	run_compute_shader()
@@ -189,6 +200,20 @@ func update_compute_storage():
 		buffer_size = buffer.size()
 		_update_uniform_set()
 
+func create_param_storage() -> RID:
+	var buffer := PackedByteArray()
+	buffer.append_array(PackedInt32Array([num_bounces]).to_byte_array())
+	buffer.append_array(PackedInt32Array([rays_per_pixel]).to_byte_array())
+	
+	return rd.storage_buffer_create(buffer.size(), buffer)
+
+func update_param_storage():
+	var buffer := PackedByteArray()
+	buffer.append_array(PackedInt32Array([num_bounces]).to_byte_array())
+	buffer.append_array(PackedInt32Array([rays_per_pixel]).to_byte_array())
+	
+	rd.buffer_update(param_buffer_rid, 0, buffer.size(), buffer)
+
 func setup_compute_shader():
 	var shader_file = load("res://compute_shader.glsl")
 	var shader_spirv = shader_file.get_spirv()
@@ -205,7 +230,12 @@ func setup_compute_shader():
 	buffer_uniform.binding = 1
 	buffer_uniform.add_id(storage_buffer_rid)
 	
-	uniform_set_rid = rd.uniform_set_create([texture_uniform, buffer_uniform], shader, 0)
+	var param_uniform := RDUniform.new()
+	param_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	param_uniform.binding = 2
+	param_uniform.add_id(param_buffer_rid)
+	
+	uniform_set_rid = rd.uniform_set_create([texture_uniform, buffer_uniform, param_uniform], shader, 0)
 
 func _update_uniform_set():
 	var texture_uniform = RDUniform.new()
@@ -218,8 +248,13 @@ func _update_uniform_set():
 	buffer_uniform.binding = 1
 	buffer_uniform.add_id(storage_buffer_rid)
 	
+	var param_uniform := RDUniform.new()
+	param_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	param_uniform.binding = 2
+	param_uniform.add_id(param_buffer_rid)
+	
 	rd.free_rid(uniform_set_rid)
-	uniform_set_rid = rd.uniform_set_create([texture_uniform, buffer_uniform], shader, 0)
+	uniform_set_rid = rd.uniform_set_create([texture_uniform, buffer_uniform, param_uniform], shader, 0)
 	
 func run_compute_shader():
 	var compute_list = rd.compute_list_begin()
@@ -259,4 +294,13 @@ func _float_to_bytes(f: float) -> PackedByteArray:
 func _process(delta: float) -> void:
 	sampleCount += 1
 	update_compute_storage()
+	update_param_storage()
 	run_compute_shader()
+
+
+func _on_bounces_spin_box_value_changed(value: float) -> void:
+	num_bounces = int(value)
+
+
+func _on_rays_spin_box_value_changed(value: float) -> void:
+	rays_per_pixel = int(value)
