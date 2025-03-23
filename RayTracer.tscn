@@ -95,11 +95,6 @@ surface_material_override/0 = SubResource("StandardMaterial3D_3kpek")
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
 [node name="BouncesSpinBox" type="SpinBox" parent="CanvasLayer"]
 offset_right = 86.5625
@@ -110,5 +105,13 @@ offset_top = 35.0
 offset_right = 86.5625
 offset_bottom = 66.0
 
+[node name="Button" type="Button" parent="CanvasLayer"]
+offset_left = 3.0
+offset_top = 74.0
+offset_right = 52.0
+offset_bottom = 105.0
+text = "Clear"
+
 [connection signal="value_changed" from="CanvasLayer/BouncesSpinBox" to="." method="_on_bounces_spin_box_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/RaysSpinBox" to="." method="_on_rays_spin_box_value_changed"]
+[connection signal="pressed" from="CanvasLayer/Button" to="." method="_on_button_pressed"]

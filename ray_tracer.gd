@@ -16,7 +16,7 @@ var height: int = 1080
 var sampleCount: int = 1
 
 var num_bounces = 10;
-var rays_per_pixel = 32;
+var rays_per_pixel = 1;
 
 
 @onready var camera = $Camera3D
@@ -56,7 +56,7 @@ func create_compute_texture() -> RID:
 	
 	return rd.texture_create(tex_format, tex_view)
 	
-func create_compute_storage() -> RID:
+func get_shader_storage_buffer() -> PackedByteArray:
 	var buffer := PackedByteArray()
 	
 	buffer.append_array(_vector3_to_bytes(camera.global_transform.origin))
@@ -123,74 +123,15 @@ func create_compute_storage() -> RID:
 		buffer.append_array(_float_to_bytes(0))
 		buffer.append_array(_float_to_bytes(0))
 	
+	return buffer
+	
+func create_compute_storage() -> RID:
+	var buffer := get_shader_storage_buffer()
 	buffer_size = buffer.size()
 	return rd.storage_buffer_create(buffer.size(), buffer)
 
 func update_compute_storage():
-	var buffer := PackedByteArray()
-	
-	buffer.append_array(_vector3_to_bytes(camera.global_transform.origin))
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(camera.basis.x))
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(camera.basis.y))
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_vector3_to_bytes(camera.basis.z))
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_float_to_bytes(camera.fov))
-	buffer.append_array(_float_to_bytes(float(width)/ height))
-	
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_float_to_bytes(0.0))
-
-	var sphereList := []
-	for child in get_children():
-		if child is MeshInstance3D and child.mesh is SphereMesh:
-			var meshInstance = child as MeshInstance3D
-			var sphere = meshInstance.mesh as SphereMesh
-			var material = meshInstance.get_surface_override_material(0) as StandardMaterial3D
-			var color: Vector4
-			var emission_color: Vector3
-			var emission_strength: float
-			var roughness: float
-			var metallic: float
-			if material == null:
-				color = Vector4(1.0, 1.0, 1.0, 1.0)
-				emission_color = Vector3(0.0, 0.0, 0.0)
-				emission_strength = 0.0
-				roughness = 1.0
-				metallic = 0.0
-			else:
-				color = Vector4(material.albedo_color.r, material.albedo_color.g, material.albedo_color.b, material.albedo_color.a)
-				emission_color = Vector3(material.emission.r, material.emission.g, material.emission.b)
-				emission_strength = material.emission_energy_multiplier
-				roughness = material.roughness
-				metallic = material.metallic_specular
-			sphereList.append({
-				"center" : meshInstance.global_transform.origin,
-				"radius" : meshInstance.global_transform.basis.get_scale().x * 0.5,
-				"color"  : color,
-				"emission_color" : emission_color,
-				"emission_strength" : emission_strength,
-				"roughness" : roughness,
-				"metallic" : metallic
-			})	
-	
-	buffer.append_array(PackedInt32Array([sampleCount]).to_byte_array())
-	buffer.append_array(PackedInt32Array([sphereList.size()]).to_byte_array())
-	buffer.append_array(_float_to_bytes(0.0))
-	buffer.append_array(_float_to_bytes(0.0))
-	
-	for sphere in sphereList:
-		buffer.append_array(_vector3_to_bytes(sphere.center))
-		buffer.append_array(_float_to_bytes(sphere.radius))
-		buffer.append_array(_vector4_to_bytes(sphere.color))
-		buffer.append_array(_vector3_to_bytes(sphere.emission_color))
-		buffer.append_array(_float_to_bytes(sphere.emission_strength))
-		buffer.append_array(_float_to_bytes(sphere.roughness))
-		buffer.append_array(_float_to_bytes(sphere.metallic))
-		buffer.append_array(_float_to_bytes(0))
-		buffer.append_array(_float_to_bytes(0))
+	var buffer := get_shader_storage_buffer()
 	
 	if buffer.size() == buffer_size:
 		rd.buffer_update(storage_buffer_rid, 0, buffer.size(), buffer)
@@ -200,18 +141,19 @@ func update_compute_storage():
 		buffer_size = buffer.size()
 		_update_uniform_set()
 
-func create_param_storage() -> RID:
+func get_shader_param_buffer() -> PackedByteArray:
 	var buffer := PackedByteArray()
 	buffer.append_array(PackedInt32Array([num_bounces]).to_byte_array())
 	buffer.append_array(PackedInt32Array([rays_per_pixel]).to_byte_array())
 	
+	return buffer
+
+func create_param_storage() -> RID:
+	var buffer := get_shader_param_buffer()
 	return rd.storage_buffer_create(buffer.size(), buffer)
 
 func update_param_storage():
-	var buffer := PackedByteArray()
-	buffer.append_array(PackedInt32Array([num_bounces]).to_byte_array())
-	buffer.append_array(PackedInt32Array([rays_per_pixel]).to_byte_array())
-	
+	var buffer := get_shader_param_buffer()
 	rd.buffer_update(param_buffer_rid, 0, buffer.size(), buffer)
 
 func setup_compute_shader():
@@ -304,3 +246,7 @@ func _on_bounces_spin_box_value_changed(value: float) -> void:
 
 func _on_rays_spin_box_value_changed(value: float) -> void:
 	rays_per_pixel = int(value)
+
+
+func _on_button_pressed() -> void:
+	sampleCount = 1 # Replace with function body.
