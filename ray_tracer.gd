@@ -249,4 +249,4 @@ func _on_rays_spin_box_value_changed(value: float) -> void:
 
 
 func _on_button_pressed() -> void:
-	sampleCount = 1 # Replace with function body.
+	sampleCount = 1 
