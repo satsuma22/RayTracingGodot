@@ -97,20 +97,39 @@ surface_material_override/0 = SubResource("StandardMaterial3D_3kpek")
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
 
 [node name="BouncesSpinBox" type="SpinBox" parent="CanvasLayer"]
-offset_right = 86.5625
-offset_bottom = 31.0
+offset_left = 116.0
+offset_top = 2.0
+offset_right = 202.563
+offset_bottom = 33.0
+
+[node name="Label" type="Label" parent="CanvasLayer/BouncesSpinBox"]
+layout_mode = 0
+offset_left = -112.0
+offset_top = 2.0
+offset_right = -3.0
+offset_bottom = 25.0
+text = "Light Bounces"
 
 [node name="RaysSpinBox" type="SpinBox" parent="CanvasLayer"]
-offset_top = 35.0
-offset_right = 86.5625
-offset_bottom = 66.0
+offset_left = 116.0
+offset_top = 34.0
+offset_right = 202.563
+offset_bottom = 65.0
+
+[node name="Label" type="Label" parent="CanvasLayer/RaysSpinBox"]
+layout_mode = 0
+offset_left = -110.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = 26.0
+text = "Rays Per Pixel"
 
 [node name="Button" type="Button" parent="CanvasLayer"]
-offset_left = 3.0
-offset_top = 74.0
-offset_right = 52.0
-offset_bottom = 105.0
-text = "Clear"
+offset_left = 128.0
+offset_top = 72.0
+offset_right = 177.0
+offset_bottom = 103.0
+text = "Reset"
 
 [connection signal="value_changed" from="CanvasLayer/BouncesSpinBox" to="." method="_on_bounces_spin_box_value_changed"]
 [connection signal="value_changed" from="CanvasLayer/RaysSpinBox" to="." method="_on_rays_spin_box_value_changed"]
